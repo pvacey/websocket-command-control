@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"io/ioutil"
 	//"time"
 )
 
@@ -119,7 +120,8 @@ func handleNewPeerConnection(c *Controller, res http.ResponseWriter, req *http.R
 }
 
 func emit(c *Controller, res http.ResponseWriter, req *http.Request) {
-	c.outbox <-	"hello there!!!!!"
+	body, _ := ioutil.ReadAll(req.Body)
+	c.outbox <- string(body)
 }
 
 func main() {
