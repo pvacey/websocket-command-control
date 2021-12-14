@@ -1,6 +1,9 @@
 package main
 
-import "log"
+import (
+	"log"
+	"time"
+)
 
 type Controller struct {
 	// a collection of peers to loop over
@@ -28,6 +31,10 @@ func (c *Controller) run() {
 		case msg := <-c.outbox:
 			for p := range c.peers {
 				p.inbox <- msg
+			}
+		case <-time.After(30 * time.Second):
+			for p := range c.peers {
+				p.ping <- true
 			}
 		case p := <-c.addPeer:
 			log.Println("adding peer ", p.websocket.RemoteAddr())

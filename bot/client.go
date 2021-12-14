@@ -13,12 +13,9 @@ func send(c *websocket.Conn, msg string) {
 	}
 }
 
-func recieve(c *websocket.Conn) string {
+func recieve(c *websocket.Conn) (string, error) {
 	_, payload, err := c.ReadMessage()
-	if err != nil {
-		log.Println("recieve error: ", err)
-	}
-	return string(payload)
+	return string(payload), err
 }
 
 func main() {
@@ -33,11 +30,15 @@ func main() {
 
 	send(conn, "hey")
 	for {
-		msg := recieve(conn)
+		msg, err := recieve(conn)
+		if err != nil {
+			log.Println("recieve error: ", err)
+			break
+		}
 		log.Println("recieved message: ", msg)
 	}
 
 	// send the proper disconnect signal to the other end
 	conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
-	time.Sleep(1)
+	time.Sleep(100)
 }

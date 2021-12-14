@@ -10,6 +10,8 @@ type Peer struct {
 	inbox chan string
 	// a collection of the messages returned from the peer
 	outbox []string
+	// recieve triggers to send ping/keepalives
+	ping chan bool
 	// the controller to send messages
 	controller *Controller
 	// the actuall connection to the peer
@@ -20,6 +22,7 @@ func initPeer(w *websocket.Conn, c *Controller) *Peer {
 	return &Peer{
 		inbox:      make(chan string),
 		outbox:     make([]string, 1),
+		ping:       make(chan bool),
 		websocket:  w,
 		controller: c,
 	}
@@ -43,12 +46,23 @@ func (p *Peer) reader() {
 // need to change the loop to watch for both messages in the peer inbox
 // as well as to send a periodic ping message with time.After (use select)
 func (p *Peer) writer() {
-	for msg := range p.inbox {
-		err := p.websocket.WriteMessage(1, []byte(msg))
-		if err != nil {
-			log.Println(err)
-			break
-		}
+	Looper: for {
+		select {
+		case msg := <- p.inbox:
+			err := p.websocket.WriteMessage(1, []byte(msg))
+			if err != nil {
+				log.Println(err)
+				break Looper
+			}
+		case <- p.ping:
+			log.Println("sending ping to ", p.websocket.RemoteAddr())
+			err := p.websocket.WriteMessage(websocket.PingMessage, nil)
+			if err != nil {
+				log.Println(err)
+				break Looper
+			}
+			
+		} 
 	}
 	// drop the peer once the loop is broken by an error or some other condition
 	p.controller.removePeer <- p
