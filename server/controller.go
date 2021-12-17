@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"time"
 )
@@ -43,6 +44,18 @@ func (c *Controller) run() {
 			log.Println("removing peer ", p.websocket.RemoteAddr())
 			delete(c.peers, p)
 			p.websocket.Close()
+		}
+	}
+}
+
+func (c *Controller) getPeerHistory() {
+	for p := range c.peers {
+		fmt.Printf("\n%s@%s\n", p.info["username"], p.info["hostname"])
+		for _, cr := range p.outbox {
+			fmt.Println("---")
+			fmt.Println(cr.Command)
+			fmt.Println("")
+			fmt.Println(cr.Result)
 		}
 	}
 }

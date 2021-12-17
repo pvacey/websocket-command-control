@@ -45,6 +45,7 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { handleNewPeerConnection(controller, w, r) })
 	http.HandleFunc("/message", func(w http.ResponseWriter, r *http.Request) { emit(controller, w, r) })
+	http.HandleFunc("/history", func(w http.ResponseWriter, r *http.Request) { controller.getPeerHistory() })
 
 	err := http.ListenAndServe(*addr, nil)
 	if err != nil {
