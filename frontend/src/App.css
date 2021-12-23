@@ -12,11 +12,14 @@ html,body {
   width: 100%;
   display: flex;
   justify-content: left;
-  padding: 2vh;
+  padding: 1vh;
+  padding-left: 2vh;
+  padding-top: 2vh;
   font-size: 2.5em;
   align-items: center;
-  height: 6vh;
+  height: 4vh;
   font-family: "Bebas Neue", sans-serif;
+  font-weight: 600;
   background: linear-gradient(to right, rgb(182, 244, 146), rgb(51, 139, 147)); 
 }
 
@@ -24,7 +27,7 @@ html,body {
   #max-height: calc(90vh - 70px);
   #height: calc(90vh - 70px);
   #max-height: (90vh - 70px);
-  height: 80vh;
+  height: 88vh;
   display: flex;
   margin:10px;
   margin-top: 10vh;
@@ -43,10 +46,10 @@ html,body {
 
 .Reply {
   border-radius: 9px;
-  padding: 10px;
+  padding: 5px;
   display:flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
   #background-color: #555555;
   background: linear-gradient(to right, rgb(182, 244, 146), rgb(51, 139, 147)); 
 }
@@ -87,11 +90,13 @@ html,body {
   width: 100%;
   display: flex;
   height: 8vh;
-  background: linear-gradient(to right, rgb(182, 244, 146), rgb(51, 139, 147)); 
+  #background: linear-gradient(to right, rgb(182, 244, 146), rgb(51, 139, 147)); 
 }
 
 .CmdTextInput {
-  color: rgb(182,244,146);
+  background: linear-gradient(to right, rgb(182, 244, 146), rgb(51, 139, 147)); 
+  #color: rgb(182,244,146);
+ 
   flex:1;
   border-radius: 9px;
   border-style: none;
