@@ -24,14 +24,10 @@ html,body {
 }
 
 .ReplyWindow {
-  #max-height: calc(90vh - 70px);
-  #height: calc(90vh - 70px);
-  #max-height: (90vh - 70px);
-  height: 88vh;
+  height: 84vh;
   display: flex;
   margin:10px;
-  margin-top: 10vh;
-  #background-color: white;
+  margin-top: 8vh;
   overflow-y: scroll;
 }
 
@@ -41,7 +37,6 @@ html,body {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  #background-color: orange;
 }
 
 .Reply {
@@ -50,7 +45,6 @@ html,body {
   display:flex;
   flex-direction: column;
   gap: 5px;
-  #background-color: #555555;
   background: linear-gradient(to right, rgb(182, 244, 146), rgb(51, 139, 147)); 
 }
 
@@ -95,8 +89,6 @@ html,body {
 
 .CmdTextInput {
   background: linear-gradient(to right, rgb(182, 244, 146), rgb(51, 139, 147)); 
-  #color: rgb(182,244,146);
- 
   flex:1;
   border-radius: 9px;
   border-style: none;
