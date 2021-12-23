@@ -5,20 +5,22 @@ import (
 	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
-	"strings"
 )
 
 type CommandResult struct {
+	HostInfo map[string]string
 	Command string
 	Result  string
-	Err     error
+	Err     string
 }
 
 type Peer struct {
 	// messages going to the peer
 	inbox chan string
+	// a channel of live replies from the peer
+	outbox  chan CommandResult
 	// a collection of the messages returned from the peer
-	outbox []CommandResult
+	history []CommandResult
 	// recieve triggers to send ping/keepalives
 	ping chan bool
 	// the controller to send messages
@@ -32,7 +34,8 @@ type Peer struct {
 func initPeer(w *websocket.Conn, c *Controller) *Peer {
 	return &Peer{
 		inbox:      make(chan string),
-		outbox:     make([]CommandResult, 0),
+		outbox:    make(chan CommandResult),
+		history:    make([]CommandResult, 0),
 		ping:       make(chan bool),
 		websocket:  w,
 		controller: c,
@@ -40,17 +43,14 @@ func initPeer(w *websocket.Conn, c *Controller) *Peer {
 	}
 }
 
-// this can likely be repurposed so that it reads messages and store them in
-// the peer's outbox array. god only knows what to do with it then
-// ignore pong messages, once those exist
 func (p *Peer) reader() {
 	_, payload, _ := p.websocket.ReadMessage()
+	// read the first message and set the peer's info based	
+	// on the content of this first message
+	cmdRes := CommandResult{}
+	json.Unmarshal(payload, &cmdRes)
+	p.info = cmdRes.HostInfo
 	p.info["address"] = fmt.Sprint(p.websocket.RemoteAddr())
-	firstMsg := strings.Split(string(payload), " ")
-	p.info["os"] = firstMsg[0]
-	p.info["workingDir"] = firstMsg[1]
-	p.info["hostname"] = firstMsg[2]
-	p.info["username"] = firstMsg[3]
 	log.Println("peer info: ", p.info)
 
 	for {
@@ -60,15 +60,14 @@ func (p *Peer) reader() {
 			log.Println(err)
 			break
 		}
-		cmdRes := CommandResult{}
 		json.Unmarshal(payload, &cmdRes)
 		log.Println("incoming reply to cmd:", cmdRes.Command)
-		p.outbox = append(p.outbox, cmdRes)
+		// return results to listening admins and track the history
+		p.controller.results <- cmdRes
+		p.history = append(p.history, cmdRes)
 	}
 }
 
-// need to change the loop to watch for both messages in the peer inbox
-// as well as to send a periodic ping message with time.After (use select)
 func (p *Peer) writer() {
 Looper:
 	for {

