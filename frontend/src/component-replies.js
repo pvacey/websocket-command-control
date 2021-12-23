@@ -1,15 +1,19 @@
-import {useState, useEffect} from "react";
+import {useState, useEffect, useRef} from "react";
 
 function ReplyWindow() {
+	const replyWindowRef = useRef(null)
 	const ws = new WebSocket("ws://localhost:8000/admin");
 
+	const scrollToBottom = () => {
+		replyWindowRef.current.scroll(0,replyWindowRef.current.scrollHeight);
+	}
+
 	return (
-    <div className="ReplyWindow">
-		<Replies websocket={ws}/>	
+    <div className="ReplyWindow" ref={replyWindowRef}>
+		<Replies websocket={ws} scrollToBottom={scrollToBottom} />	
     </div>
   	);
 }
-
 
 function Replies(props) {
 	const [messages, setMessages] = useState([]);
@@ -19,7 +23,9 @@ function Replies(props) {
 			var message = JSON.parse(msg.data);
 			console.log(message)
 			setMessages((existingMessages) => [...existingMessages, message]);
+			
 		}
+		props.scrollToBottom();
 	});
 	
 	return (
@@ -32,8 +38,10 @@ function Replies(props) {
 function Reply({props}) {
 	return (
 	<div className="Reply">
-		<HostInfo props={props.HostInfo}/>
-	    {props.Command}
+		<div className="ReplyHeader"> 
+			<HostInfo props={props.HostInfo}/>
+			<div className="Command">{props.Command}</div>
+		</div>
 		<div className="Output">
 			{props.Result}{props.Err}
 		</div>
@@ -43,8 +51,8 @@ function Reply({props}) {
 
 function HostInfo({props}) {
 	return (
-	<div className="Host">
-		[{props.username}@{props.hostname} on {props.address}] $
+	<div className="HostInfo">
+		[{props.username}@{props.hostname} on {props.address}]
 	</div>
 	);
 }
