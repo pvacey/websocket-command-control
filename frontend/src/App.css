@@ -1,0 +1,34 @@
+html,body {
+  height: 100%;
+}
+
+
+.App {
+  background-color: #bbbbbb;
+  height: 100%;
+}
+
+.ReplyWindow {
+  padding: 24px;
+  overflow-y: auto;
+  flex-direction: column-reverse;
+}
+
+.Replies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.Reply {
+  background-color: #eeeeee;
+  padding: 10px;
+  width: 100%;
+  white-space: pre-line;  
+}
+
+.Host {
+  background-color: #dddddd;
+  padding: 10px;
+  //width: fit-content;
+}
