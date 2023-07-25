@@ -2,6 +2,7 @@ import {useState, useEffect, useRef} from "react";
 
 function ReplyWindow() {
 	const replyWindowRef = useRef(null)
+	//const ws = new WebSocket("ws://192.168.1.178:8000/admin");
 	const ws = new WebSocket("ws://localhost:8000/admin");
 
 	const scrollToBottom = () => {
